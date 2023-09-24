@@ -12,6 +12,7 @@ public class Lox {
     private static final Interpreter interpreter = new Interpreter();
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
+
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
@@ -25,6 +26,7 @@ public class Lox {
 
     /**
      * Runs a source file from the command line
+     *
      * @param path The path to the source file
      * @throws IOException if there is an issue with the file.
      */
@@ -39,13 +41,14 @@ public class Lox {
 
     /**
      * Run a REPL for JLOX
+     *
      * @throws IOException
      */
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        for (;;) {
+        for (; ; ) {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break;

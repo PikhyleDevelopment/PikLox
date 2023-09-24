@@ -8,33 +8,33 @@ import java.util.Map;
 import static com.craftinginterpreters.lox.TokenType.*;
 
 class Scanner {
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
+
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
     private int current = 0;
     private int line = 1;
-
-    private static final Map<String, TokenType> keywords;
-
-    static {
-        keywords = new HashMap<>();
-        keywords.put("and",     AND);
-        keywords.put("class",   CLASS);
-        keywords.put("else",    ELSE);
-        keywords.put("false",   FALSE);
-        keywords.put("for",     FOR);
-        keywords.put("fun",     FUN);
-        keywords.put("if",      IF);
-        keywords.put("nil",     NIL);
-        keywords.put("or",      OR);
-        keywords.put("print",   PRINT);
-        keywords.put("return",  RETURN);
-        keywords.put("super",   SUPER);
-        keywords.put("this",    THIS);
-        keywords.put("true",    TRUE);
-        keywords.put("var",     VAR);
-        keywords.put("while",   WHILE);
-    }
 
     Scanner(String source) {
         this.source = source;
@@ -148,6 +148,7 @@ class Scanner {
      * Like a conditional advance().
      * Only consume the current character if it's what we
      * are looking for.
+     *
      * @param expected The expected next character.
      * @return Returns true, unless we are at the end of the file.
      */
@@ -165,6 +166,7 @@ class Scanner {
 
     /**
      * Like advance(), but doesn't actually consume the character.
+     *
      * @return The next upcoming character
      */
     private char peek() {
@@ -193,6 +195,7 @@ class Scanner {
 
     /**
      * Consumes the next character in the source file
+     *
      * @return The consumed next character in the source file.
      */
     private char advance() {
@@ -202,6 +205,7 @@ class Scanner {
     /**
      * Grabs the text of the current lexeme and creates a
      * new token for it.
+     *
      * @param type @see {@link com.craftinginterpreters.lox.TokenType}
      */
     private void addToken(TokenType type) {
@@ -210,7 +214,8 @@ class Scanner {
 
     /**
      * An overload for literals.
-     * @param type @see {@link com.craftinginterpreters.lox.TokenType}
+     *
+     * @param type    @see {@link com.craftinginterpreters.lox.TokenType}
      * @param literal A token with a literal value.
      */
     private void addToken(TokenType type, Object literal) {
