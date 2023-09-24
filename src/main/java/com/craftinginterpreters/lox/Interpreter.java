@@ -26,7 +26,7 @@ public class Interpreter implements Expr.Visitor<Object>,
                 return "<native fn>";
             }
         });
-        globals.define("println", new LoxCallable() {
+        globals.define("print", new LoxCallable() {
             @Override
             public int arity() {
                 return 1;
@@ -125,11 +125,10 @@ public class Interpreter implements Expr.Visitor<Object>,
             arguments.add(evaluate(argument));
         }
 
-        if (!(callee instanceof LoxCallable)) {
+        if (!(callee instanceof LoxCallable function)) {
             throw new RuntimeError(expr.paren, "Can only call functions and classes.");
         }
 
-        LoxCallable function = (LoxCallable) callee;
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren, "Expected " +
                     function.arity() + " arguments but got " +
@@ -187,6 +186,13 @@ public class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        LoxFunction function = new LoxFunction(stmt);
+        environment.define(stmt.name.lexeme, function);
         return null;
     }
 
