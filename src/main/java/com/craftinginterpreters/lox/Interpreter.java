@@ -1,14 +1,33 @@
 package com.craftinginterpreters.lox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+
+/**
+ * The type Interpreter.
+ */
 public class Interpreter implements Expr.Visitor<Object>,
         Stmt.Visitor<Void> {
 
+    /**
+     * The Globals.
+     */
     final Environment globals = new Environment();
+    /**
+     * The Locals.
+     */
+    private final Map<Expr, Integer> locals = new HashMap<>();
+    /**
+     * The Environment.
+     */
     private Environment environment = globals;
 
+    /**
+     * Instantiates a new Interpreter.
+     */
     Interpreter() {
         globals.define("clock", new LoxCallable() {
             @Override
@@ -50,6 +69,11 @@ public class Interpreter implements Expr.Visitor<Object>,
         });
     }
 
+    /**
+     * Interpret.
+     *
+     * @param statements the statements
+     */
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
@@ -181,7 +205,7 @@ public class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        return lookUpVariable(expr.name, expr);
     }
 
     @Override
@@ -252,29 +276,60 @@ public class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value);
+        } else {
+            globals.assign(expr.name, value);
+        }
         return value;
     }
 
     /* Private Helper Methods */
 
+    /**
+     * Check number operand.
+     *
+     * @param operator the operator
+     * @param operand  the operand
+     */
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double) return;
         throw new RuntimeError(operator, "Operand must be a number.");
     }
 
+    /**
+     * Check number operands.
+     *
+     * @param operator the operator
+     * @param left     the left
+     * @param right    the right
+     */
     private void checkNumberOperands(Token operator, Object left, Object right) {
         if (left instanceof Double && right instanceof Double) return;
 
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
+    /**
+     * Is truthy boolean.
+     *
+     * @param object the object
+     * @return the boolean
+     */
     private boolean isTruthy(Object object) {
         if (object == null) return false;
         if (object instanceof Boolean) return (boolean) object;
         return true;
     }
 
+    /**
+     * Is equal boolean.
+     *
+     * @param a the a
+     * @param b the b
+     * @return the boolean
+     */
     private boolean isEqual(Object a, Object b) {
         if (a == null && b == null) return true;
         if (a == null) return false;
@@ -282,6 +337,12 @@ public class Interpreter implements Expr.Visitor<Object>,
         return a.equals(b);
     }
 
+    /**
+     * Stringify string.
+     *
+     * @param object the object
+     * @return the string
+     */
     private String stringify(Object object) {
         if (object == null) return "nil";
 
@@ -296,14 +357,57 @@ public class Interpreter implements Expr.Visitor<Object>,
         return object.toString();
     }
 
+    /**
+     * Evaluate object.
+     *
+     * @param expr the expr
+     * @return the object
+     */
     private Object evaluate(Expr expr) {
         return expr.accept(this);
     }
 
+    /**
+     * Execute.
+     *
+     * @param stmt the stmt
+     */
     private void execute(Stmt stmt) {
         stmt.accept(this);
     }
 
+    /**
+     * Look up variable object.
+     *
+     * @param name the name
+     * @param expr the expr
+     * @return the object
+     */
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme);
+        } else {
+            return globals.get(name);
+        }
+    }
+
+    /**
+     * Resolve.
+     *
+     * @param expr  the expr
+     * @param depth the depth
+     */
+    void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
+    }
+
+    /**
+     * Execute block.
+     *
+     * @param statements  the statements
+     * @param environment the environment
+     */
     void executeBlock(List<Stmt> statements, Environment environment) {
         Environment previous = this.environment;
         try {

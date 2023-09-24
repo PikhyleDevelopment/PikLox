@@ -6,14 +6,33 @@ import java.util.List;
 
 import static com.craftinginterpreters.lox.TokenType.*;
 
+/**
+ * The type Parser.
+ */
 class Parser {
+    /**
+     * The Tokens.
+     */
     private final List<Token> tokens;
+    /**
+     * The Current.
+     */
     private int current = 0;
 
+    /**
+     * Instantiates a new Parser.
+     *
+     * @param tokens the tokens
+     */
     Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
+    /**
+     * Parse list.
+     *
+     * @return the list
+     */
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
@@ -23,10 +42,20 @@ class Parser {
         return statements;
     }
 
+    /**
+     * Expression expr.
+     *
+     * @return the expr
+     */
     private Expr expression() {
         return assignment();
     }
 
+    /**
+     * Declaration stmt.
+     *
+     * @return the stmt
+     */
     private Stmt declaration() {
         try {
             if (match(FUN)) return function("function");
@@ -39,6 +68,11 @@ class Parser {
         }
     }
 
+    /**
+     * Statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt statement() {
         if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
@@ -49,6 +83,11 @@ class Parser {
         return expressionStatement();
     }
 
+    /**
+     * For statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt forStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'for'.");
 
@@ -93,6 +132,11 @@ class Parser {
         return body;
     }
 
+    /**
+     * If statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'if'.");
         Expr condition = expression();
@@ -107,6 +151,11 @@ class Parser {
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
+    /**
+     * Equality expr.
+     *
+     * @return the expr
+     */
     private Expr equality() {
         Expr expr = comparison();
 
@@ -121,6 +170,11 @@ class Parser {
 
     /* Binary Operations */
 
+    /**
+     * Comparison expr.
+     *
+     * @return the expr
+     */
     private Expr comparison() {
         Expr expr = term();
 
@@ -133,6 +187,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Term expr.
+     *
+     * @return the expr
+     */
     private Expr term() {
         Expr expr = factor();
 
@@ -145,6 +204,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Factor expr.
+     *
+     * @return the expr
+     */
     private Expr factor() {
         Expr expr = unary();
 
@@ -157,6 +221,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Unary expr.
+     *
+     * @return the expr
+     */
     private Expr unary() {
         if (match(BANG, MINUS)) {
             Token operator = previous();
@@ -167,6 +236,12 @@ class Parser {
         return call();
     }
 
+    /**
+     * Finish call expr.
+     *
+     * @param callee the callee
+     * @return the expr
+     */
     private Expr finishCall(Expr callee) {
         List<Expr> arguments = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
@@ -183,6 +258,11 @@ class Parser {
         return new Expr.Call(callee, paren, arguments);
     }
 
+    /**
+     * Call expr.
+     *
+     * @return the expr
+     */
     private Expr call() {
         Expr expr = primary();
 
@@ -197,6 +277,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Primary expr.
+     *
+     * @return the expr
+     */
     private Expr primary() {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
@@ -218,12 +303,22 @@ class Parser {
         throw error(peek(), "Expect expression");
     }
 
+    /**
+     * Print statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt printStatement() {
         Expr value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Print(value);
     }
 
+    /**
+     * Return statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt returnStatement() {
         Token keyword = previous();
         Expr value = null;
@@ -237,6 +332,11 @@ class Parser {
 
     /* Helper Methods */
 
+    /**
+     * Var declaration stmt.
+     *
+     * @return the stmt
+     */
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
@@ -249,6 +349,11 @@ class Parser {
         return new Stmt.Var(name, initializer);
     }
 
+    /**
+     * While statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'while'.");
         Expr condition = expression();
@@ -258,12 +363,23 @@ class Parser {
         return new Stmt.While(condition, body);
     }
 
+    /**
+     * Expression statement stmt.
+     *
+     * @return the stmt
+     */
     private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
     }
 
+    /**
+     * Function stmt . function.
+     *
+     * @param kind the kind
+     * @return the stmt . function
+     */
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect " + kind + "name.");
         consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
@@ -286,6 +402,11 @@ class Parser {
         return new Stmt.Function(name, parameters, body);
     }
 
+    /**
+     * Block list.
+     *
+     * @return the list
+     */
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
@@ -297,6 +418,11 @@ class Parser {
         return statements;
     }
 
+    /**
+     * Assignment expr.
+     *
+     * @return the expr
+     */
     private Expr assignment() {
         Expr expr = or();
 
@@ -315,6 +441,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Or expr.
+     *
+     * @return the expr
+     */
     private Expr or() {
         Expr expr = and();
 
@@ -327,6 +458,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * And expr.
+     *
+     * @return the expr
+     */
     private Expr and() {
         Expr expr = equality();
 
@@ -339,6 +475,12 @@ class Parser {
         return expr;
     }
 
+    /**
+     * Match boolean.
+     *
+     * @param types the types
+     * @return the boolean
+     */
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
@@ -350,39 +492,82 @@ class Parser {
         return false;
     }
 
+    /**
+     * Consume token.
+     *
+     * @param type    the type
+     * @param message the message
+     * @return the token
+     */
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
 
         throw error(peek(), message);
     }
 
+    /**
+     * Check boolean.
+     *
+     * @param type the type
+     * @return the boolean
+     */
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
         return peek().type == type;
     }
 
+    /**
+     * Advance token.
+     *
+     * @return the token
+     */
     private Token advance() {
         if (!isAtEnd()) current++;
         return previous();
     }
 
+    /**
+     * Is at end boolean.
+     *
+     * @return the boolean
+     */
     private boolean isAtEnd() {
         return peek().type == EOF;
     }
 
+    /**
+     * Peek token.
+     *
+     * @return the token
+     */
     private Token peek() {
         return tokens.get(current);
     }
 
+    /**
+     * Previous token.
+     *
+     * @return the token
+     */
     private Token previous() {
         return tokens.get(current - 1);
     }
 
+    /**
+     * Error parse error.
+     *
+     * @param token   the token
+     * @param message the message
+     * @return the parse error
+     */
     private ParseError error(Token token, String message) {
         Lox.error(token, message);
         return new ParseError();
     }
 
+    /**
+     * Synchronize.
+     */
     private void synchronize() {
         advance();
 
@@ -405,6 +590,9 @@ class Parser {
         }
     }
 
+    /**
+     * The type Parse error.
+     */
     private static class ParseError extends RuntimeException {
     }
 

@@ -6,7 +6,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The type Generate ast.
+ */
 public class GenerateAst {
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     * @throws IOException the io exception
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.err.println("Usage: generate_ast <output directory>");
@@ -37,6 +46,14 @@ public class GenerateAst {
         ));
     }
 
+    /**
+     * Define ast.
+     *
+     * @param outputDir the output dir
+     * @param baseName  the base name
+     * @param types     the types
+     * @throws IOException the io exception
+     */
     private static void defineAst(
             String outputDir, String baseName, List<String> types
     ) throws IOException {
@@ -66,6 +83,14 @@ public class GenerateAst {
         writer.close();
     }
 
+    /**
+     * Define type.
+     *
+     * @param writer    the writer
+     * @param baseName  the base name
+     * @param className the class name
+     * @param fieldList the field list
+     */
     private static void defineType(
             PrintWriter writer, String baseName,
             String className, String fieldList) {
@@ -101,6 +126,13 @@ public class GenerateAst {
         writer.println("  }");
     }
 
+    /**
+     * Define visitor.
+     *
+     * @param writer   the writer
+     * @param baseName the base name
+     * @param types    the types
+     */
     private static void defineVisitor(
             PrintWriter writer, String baseName, List<String> types) {
         writer.println("  interface Visitor<R> {");

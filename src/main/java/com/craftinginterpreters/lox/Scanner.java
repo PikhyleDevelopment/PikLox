@@ -7,7 +7,13 @@ import java.util.Map;
 
 import static com.craftinginterpreters.lox.TokenType.*;
 
+/**
+ * The type Scanner.
+ */
 class Scanner {
+    /**
+     * The constant keywords.
+     */
     private static final Map<String, TokenType> keywords;
 
     static {
@@ -29,16 +35,41 @@ class Scanner {
         keywords.put("while", WHILE);
     }
 
+    /**
+     * The Source.
+     */
     private final String source;
+    /**
+     * The Tokens.
+     */
     private final List<Token> tokens = new ArrayList<>();
+    /**
+     * The Start.
+     */
     private int start = 0;
+    /**
+     * The Current.
+     */
     private int current = 0;
+    /**
+     * The Line.
+     */
     private int line = 1;
 
+    /**
+     * Instantiates a new Scanner.
+     *
+     * @param source the source
+     */
     Scanner(String source) {
         this.source = source;
     }
 
+    /**
+     * Scan tokens list.
+     *
+     * @return the list
+     */
     List<Token> scanTokens() {
         while (!isAtEnd()) {
             // We are at the beginning of the next lexeme.
@@ -50,6 +81,9 @@ class Scanner {
         return tokens;
     }
 
+    /**
+     * Scan token.
+     */
     private void scanToken() {
         char c = advance();
         switch (c) {
@@ -101,6 +135,9 @@ class Scanner {
         }
     }
 
+    /**
+     * Identifier.
+     */
     private void identifier() {
         while (isAlphaNumeric(peek())) advance();
 
@@ -110,6 +147,9 @@ class Scanner {
         addToken(type);
     }
 
+    /**
+     * Number.
+     */
     private void number() {
         while (isDigit(peek())) advance();
 
@@ -124,6 +164,9 @@ class Scanner {
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
+    /**
+     * String.
+     */
     private void string() {
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n') line++;
@@ -159,6 +202,11 @@ class Scanner {
         return true;
     }
 
+    /**
+     * Is at end boolean.
+     *
+     * @return the boolean
+     */
     private boolean isAtEnd() {
         return current >= source.length();
     }
@@ -173,21 +221,44 @@ class Scanner {
         return source.charAt(current);
     }
 
+    /**
+     * Peek next char.
+     *
+     * @return the char
+     */
     private char peekNext() {
         if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
     }
 
+    /**
+     * Is alpha boolean.
+     *
+     * @param c the c
+     * @return the boolean
+     */
     private boolean isAlpha(char c) {
         return (c >= 'a' && c <= 'z') ||
                 (c >= 'A' && c <= 'Z') ||
                 c == '_';
     }
 
+    /**
+     * Is alpha numeric boolean.
+     *
+     * @param c the c
+     * @return the boolean
+     */
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
     }
 
+    /**
+     * Is digit boolean.
+     *
+     * @param c the c
+     * @return the boolean
+     */
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
@@ -205,7 +276,7 @@ class Scanner {
      * Grabs the text of the current lexeme and creates a
      * new token for it.
      *
-     * @param type @see {@link com.craftinginterpreters.lox.TokenType}
+     * @param type @see TokenType
      */
     private void addToken(TokenType type) {
         addToken(type, null);
@@ -214,7 +285,7 @@ class Scanner {
     /**
      * An overload for literals.
      *
-     * @param type    @see {@link com.craftinginterpreters.lox.TokenType}
+     * @param type    @see TokenType
      * @param literal A token with a literal value.
      */
     private void addToken(TokenType type, Object literal) {

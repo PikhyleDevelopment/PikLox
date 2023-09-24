@@ -8,11 +8,29 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * The type Lox.
+ */
 public class Lox {
+    /**
+     * The constant interpreter.
+     */
     private static final Interpreter interpreter = new Interpreter();
+    /**
+     * The Had error.
+     */
     static boolean hadError = false;
+    /**
+     * The Had runtime error.
+     */
     static boolean hadRuntimeError = false;
 
+    /**
+     * The main entry point of application.
+     *
+     * @param args the input arguments
+     * @throws IOException the io exception
+     */
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
@@ -42,7 +60,7 @@ public class Lox {
     /**
      * Run a REPL for JLOX
      *
-     * @throws IOException
+     * @throws IOException the io exception
      */
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
@@ -57,6 +75,11 @@ public class Lox {
         }
     }
 
+    /**
+     * Run.
+     *
+     * @param source the source
+     */
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
@@ -66,18 +89,43 @@ public class Lox {
         // Stop if there was a syntax error
         if (hadError) return;
 
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        // Stop if there was a resolution error
+        if (hadError) return;
+
         interpreter.interpret(statements);
     }
 
+    /**
+     * Error.
+     *
+     * @param line    the line
+     * @param message the message
+     */
     static void error(int line, String message) {
         report(line, "", message);
     }
 
+    /**
+     * Report.
+     *
+     * @param line    the line
+     * @param where   the where
+     * @param message the message
+     */
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
         hadError = true;
     }
 
+    /**
+     * Error.
+     *
+     * @param token   the token
+     * @param message the message
+     */
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
             report(token.line, " at end", message);
@@ -86,6 +134,11 @@ public class Lox {
         }
     }
 
+    /**
+     * Runtime error.
+     *
+     * @param error the error
+     */
     static void runtimeError(RuntimeError error) {
         System.err.println(error.getMessage() +
                 "\n[line " + error.token.line + "]");

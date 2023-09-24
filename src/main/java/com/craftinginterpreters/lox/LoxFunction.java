@@ -2,10 +2,25 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 
+/**
+ * The type Lox function.
+ */
 class LoxFunction implements LoxCallable{
+    /**
+     * The Declaration.
+     */
     private final Stmt.Function declaration;
+    /**
+     * The Closure.
+     */
     private final Environment closure;
 
+    /**
+     * Instantiates a new Lox function.
+     *
+     * @param declaration the declaration
+     * @param closure     the closure
+     */
     LoxFunction(Stmt.Function declaration, Environment closure) {
         this.closure = closure;
         this.declaration = declaration;
